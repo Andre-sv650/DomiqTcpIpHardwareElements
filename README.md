@@ -1,6 +1,4 @@
-ArduinoModbusTcp2
-
-This is an arduino library for Modbus TCP. Currently running with Relais and DHT22 elements. Next updates:
+This is an arduino library for TCP connections to Port 2424. Currently running with Relais and DHT22 elements. Next updates:
 
     Temperature sensor One wire elements.
     Light intensity sensor.
@@ -22,7 +20,8 @@ Instructions for first setup:
     Check out this repository or download the zip file.
     Go to the platform IO Site and click Open Project.
     Open the folder where the zip file was unzipped. Click open
-    Open platform IO ini file in the Visual studio code editor. Check if you have an arduino or arduino mega, choose the correct platform.
+    Open platform IO ini file in the Visual studio code editor. 
+    Check if you have an arduino or arduino mega, choose the correct platform.
     Compile the project with visual studio code with platform IO installed. This should be finished without errors.
 
 Choose connected hardware:
