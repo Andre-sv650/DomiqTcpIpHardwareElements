@@ -27,9 +27,6 @@ public:
   TEMP_SENSOR_ONE_WIRE_ELEMENT TempOneWireSensor;
   
 private:
-
-
-  //TEMP_SENSOR_ONE_WIRE_ELEMENT TempSensor;
 };
 
 

@@ -14,4 +14,4 @@
 
 
 //The number of connected elements like DHT22, temp seonsor elements one wire usw.
-#define CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH 10
+#define CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH 6

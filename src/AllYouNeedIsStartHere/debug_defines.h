@@ -2,7 +2,7 @@
 #define DEBUG_DEFINES_H
 
 //Section TCP server
-#define DEBUG_DATA_TCP_SERVER
+//#define DEBUG_DATA_TCP_SERVER
 #define DEBUG_DATA_SENSOR_ELEMENTS_ALL
 
 //Section Connected element array
@@ -10,8 +10,8 @@
 
 
 //Section Relay
-#define DEBUG_RELAIS_SET
-#define DEBUG_RELAIS_GET
+//#define DEBUG_RELAIS_SET
+//#define DEBUG_RELAIS_GET
 
 
 
