@@ -22,12 +22,6 @@ void CONNECTED_ELEMENT_BASE::initiate(Uint8 Pin, const String &VarElementNameInD
 }
 
 
-void CONNECTED_ELEMENT_BASE::background_routine(void)
-{
-  //Background routine in case that the module dont need it.
-}
-
-
 String CONNECTED_ELEMENT_BASE::get_sampled_data(void)
 {
   //New data was received. Generate the domiq string.
@@ -42,6 +36,11 @@ void CONNECTED_ELEMENT_BASE::set_data_from_domiq(String &Value)
     this->ReceivedDataFromDomiq = Value;
     this->NewDataReceived = TRUE;
   }
+}
+
+void CONNECTED_ELEMENT_BASE::background_routine(void)
+{
+  
 }
 
 void CONNECTED_ELEMENT_BASE::set_new_data_sampled(String &Value)
@@ -89,14 +88,14 @@ String CONNECTED_ELEMENT_BASE::generate_domiq_string(String Value)
 
 void CONNECTED_ELEMENT_BASE::debug_message_new_sampled_data(void)
 {
-    String newSampledData = "New data sampled for variable: " + this->VarNameInDomiq + ". Pin:" + Pin + ". Data: " + SampledValue;
+    String newSampledData = "New data sampled for variable: " + VarNameInDomiq + ". Pin:" + Pin + ". Data: " + SampledValue;
     DEBUG_DATA::generic_send_debug_message(newSampledData); 
 }
 
 
 void CONNECTED_ELEMENT_BASE::debug_message_new_data_from_domiq(void)
 {
-    String newDataFromDomiq = "New data from domiq received: " + this->VarNameInDomiq + ". Pin:" + Pin + ". Data: " + ReceivedDataFromDomiq;
+    String newDataFromDomiq = "New data from domiq received: " + VarNameInDomiq + ". Pin:" + Pin + ". Data: " + ReceivedDataFromDomiq;
     DEBUG_DATA::generic_send_debug_message(newDataFromDomiq); 
 }
 
