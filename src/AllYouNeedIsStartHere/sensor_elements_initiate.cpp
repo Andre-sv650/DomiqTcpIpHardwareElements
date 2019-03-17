@@ -16,11 +16,14 @@ void SENSOR_ELEMENTS_INITIATE::initiate(void)
   //Initialize the DHT22 sensor.
   Dth22Sensor.initiate("VAR.Aussentemperatur", 2u, "VAR.AussenFeuchtigkeit");
 
-  //String data = Dth22Sensor.get_sampled_data();
-  //Serial.println(data);
-
   //A one wire temp sensor on arduino pin 12
   TempOneWireSensor.initiate("VAR.TempSensorOneWire", 12u);
+
+  //Ligth intensity element. Connect VCC with 5V, GND with GND.
+  //On arduino uno connect SCL with PIN A5 and SDA with PIN A4.
+  //On arduino mega connect SCL with Pin Pin 21 and SDA with PIN 20.
+  //See https://www.arduino.cc/en/Reference/Wire for details.
+  LightIntensitySensor.initiate("VAR.AussenHelligkeit");
 
   Serial.println("All elements registered. Starting server");
 }
