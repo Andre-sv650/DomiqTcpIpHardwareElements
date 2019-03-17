@@ -17,7 +17,7 @@ namespace DEBUG_DATA
 
 
 
-  void connected_element_array_item_added(bool8 Success);
+  void connected_element_array_item_added(String ElementName);
 
   void connected_element_array_item_found_setting_data(String &ItemName, String &Value);
 

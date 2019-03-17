@@ -45,18 +45,9 @@ namespace DEBUG_DATA
   }
 
 
-  void connected_element_array_item_added(bool8 Success)
+  void connected_element_array_item_added(String ElementName)
   {
-    #ifdef DEBUG_CONNECTED_ELEMENT_ARRAY
-
-    if(Success == TRUE){
-      Serial.println("A new element was registered");
-    }
-    else{
-      Serial.println("Could not register new element");
-    }
-
-    #endif
+    Serial.println("A new element was registered: " + ElementName);
   }
 
 
