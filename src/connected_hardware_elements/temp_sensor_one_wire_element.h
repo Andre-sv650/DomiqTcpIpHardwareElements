@@ -8,6 +8,7 @@
 
 #include "connected_element_base.h"
 #include "external_libraries/OneWire.h"
+#include "../HelperFunctions/data_filter_helper.h"
 
 /*
  * One temp sensor one wire element
@@ -31,6 +32,8 @@ private:
   byte addr[8];
 
   Uint32 StartTime;
+
+  DATA_FILTER_HELPER<int16> Filter;
 
 
   void background_routine_state_0(void);

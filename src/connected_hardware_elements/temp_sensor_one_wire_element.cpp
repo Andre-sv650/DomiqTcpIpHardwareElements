@@ -56,6 +56,7 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine(void)
   }
 }
 
+
 void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_0()
 {
   Uint8 i;
@@ -106,10 +107,11 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_0()
   TempSensor.write(0x44, 1); // start conversion, with parasite power on at the end
 }
 
+
 void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_2()
 {
   Uint8 i;
-  int16_t raw;
+  int16 raw;
   byte present = 0;
   byte data[12];
   float celsius;
@@ -160,6 +162,9 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_2()
       raw = raw & ~1; // 11 bit res, 375 ms
     //// default is 12 bit resolution, 750 ms conversion time
   }
+
+  raw = Filter.filter_value(raw , 10, 10);
+
   celsius = (float)raw / 16.0;
 
   newSampledData = String(celsius);

@@ -11,6 +11,13 @@ CONNECTED_ELEMENT_BASE::CONNECTED_ELEMENT_BASE()
   Pin = 0;
 }
 
+//Initiate method without pin, for example for I2C sensors
+void CONNECTED_ELEMENT_BASE::initiate(const String &VarElementNameInDomiq)
+{
+  CONNECTED_ELEMENT_BASE::initiate((Uint8)0, VarElementNameInDomiq);
+}
+
+
 void CONNECTED_ELEMENT_BASE::initiate(Uint8 Pin, const String &VarElementNameInDomiq)
 {
   this->Pin = Pin;

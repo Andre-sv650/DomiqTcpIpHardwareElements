@@ -39,11 +39,7 @@ void add_element(CONNECTED_ELEMENT_BASE *pNewElement)
 
     RegisteredElementsCount++;
 
-    DEBUG_DATA::connected_element_array_item_added(TRUE);
-  }
-  else
-  {
-    DEBUG_DATA::connected_element_array_item_added(FALSE);
+    DEBUG_DATA::connected_element_array_item_added(pNewElement->VarNameInDomiq);
   }
 }
 

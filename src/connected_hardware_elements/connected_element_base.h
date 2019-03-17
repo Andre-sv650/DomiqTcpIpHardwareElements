@@ -38,6 +38,8 @@ public:
 public:
   CONNECTED_ELEMENT_BASE();
 
+  void initiate(const String &VarElementNameInDomiq);
+
   void initiate(Uint8 Pin, const String &VarElementNameInDomiq);
 
   virtual void background_routine(void);

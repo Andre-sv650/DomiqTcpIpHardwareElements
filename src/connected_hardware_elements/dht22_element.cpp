@@ -40,7 +40,6 @@ void DHT22_ELEMENT::initiate(void)
 
     // Data wire is plugged on the Arduino
   // Connect a 4.7K or 10K resistor between VCC and the data pin (strong pullup) Setup a DHT22 instance
-  Serial.println("New DHT element on pin" + Pin);
   MyDht22.begin(Pin, DHT22);
 }
 
