@@ -12,7 +12,7 @@
  */
 class RELAIS_ELEMENT : public CONNECTED_ELEMENT_BASE
 {
-private:
+protected:
   bool8 Reversed;
 
   bool8 OnlyOneRelaisAtTime;
@@ -29,6 +29,8 @@ public:
      String get_data(void);
      
      void set_data_from_domiq(String &Data);
+
+     void set_data_from_domiq(Uint8 Value);
 };
 
 #endif //Relais element

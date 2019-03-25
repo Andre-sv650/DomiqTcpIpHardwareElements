@@ -12,24 +12,35 @@ Uint8 BackgroundRoutineCounter;
 CONNECTED_ELEMENT_BASE *pRegisteredElements[CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH];
 
 /*
+*  The registered elements that has a higher priority.
+*/
+CONNECTED_ELEMENT_BASE *pRegisteredElementsWithPriority[CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH];
+
+/*
    * The size in bits.
    */
 Uint8 RegisteredElementsCount;
+
+//The priority elements.
+Uint8 RegisteredElementsWithPriority;
 
 void initiate(void)
 {
   Uint8 i;
   RegisteredElementsCount = 0u;
+  RegisteredElementsWithPriority = 0u;
   BackgroundRoutineCounter = 0u;
 
   for (i = 0u; i < CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH; i++)
   {
     pRegisteredElements[i] = NULL_PTR;
+    pRegisteredElementsWithPriority[i] = NULL_PTR;
   }
 
   Serial.println("Array elements initiated");
 }
 
+//Add one element to the array.
 void add_element(CONNECTED_ELEMENT_BASE *pNewElement)
 {
   //Set the element.
@@ -41,6 +52,12 @@ void add_element(CONNECTED_ELEMENT_BASE *pNewElement)
 
     DEBUG_DATA::connected_element_array_item_added(pNewElement->VarNameInDomiq);
   }
+}
+
+//Add one element with priority.
+void add_element(CONNECTED_ELEMENT_BASE *pNewElement, Uint8 PriorityLevel)
+{
+
 }
 
 /*
@@ -123,6 +140,7 @@ String get_new_data()
   return newData;
 }
 
+//The background routine.
 void background_routine(void)
 {
   BackgroundRoutineCounter++;
@@ -137,6 +155,12 @@ void background_routine(void)
   {
     //Call the routine.
     pRegisteredElements[BackgroundRoutineCounter]->background_routine();
+  }
+
+  //Do all registered elements with priority.
+  for(Uint8 i = 0u; i < RegisteredElementsWithPriority; i++){
+    //Call each background routine.
+    pRegisteredElementsWithPriority[i]->background_routine();
   }
 }
 

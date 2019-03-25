@@ -18,6 +18,8 @@ namespace CONNECTED_ELEMENT_ARRAY
    
    void add_element(CONNECTED_ELEMENT_BASE *pNewElement);
 
+   void add_element(CONNECTED_ELEMENT_BASE *pNewElement, Uint8 PriorityLevel);
+
    void set_new_data_from_domiq(String &DataWithVarNameAndValue);
 
    void set_new_data_from_domiq_internal(String &Line);

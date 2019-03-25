@@ -42,6 +42,8 @@ public:
 
   void initiate(Uint8 Pin, const String &VarElementNameInDomiq);
 
+  void initiate(const String &VarElementNameInDomiq, Uint8 PriorityLevel);
+
   virtual void background_routine(void);
 
   virtual String get_sampled_data(void);

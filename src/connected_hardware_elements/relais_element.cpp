@@ -17,16 +17,25 @@ RELAIS_ELEMENT::RELAIS_ELEMENT(void)
   SizeInBits = 0u;
 }
 
-/*
- * Call the initiate method once for the relays element.
- */
+/* Initialize the Relais element.
+ * VarNameInDomiq The variable name in Domiq base
+ * StartPin The start pin where the relais block is CONNECTED
+ * PinCount The number of Relais of the relais element.
+ * Reversed Is the relais reversed, this means that setting 5V on the output releases the realais to output state 0.
+*/
 void RELAIS_ELEMENT::initiate(const String &VarNameInDomiq, Uint8 StartPin, Uint8 PinCount, bool8 Reversed)
 {
   this->initiate(VarNameInDomiq, StartPin, PinCount, Reversed, FALSE);
 }
 
 
-
+/* Initialize the Relais element.
+ * VarNameInDomiq The variable name in Domiq base
+ * StartPin The start pin where the relais block is CONNECTED
+ * PinCount The number of Relais of the relais element.
+ * Reversed Is the relais reversed, this means that setting 5V on the output releases the realais to output state 0.
+ * OnlyOneRelaisAtTime It is only allowed that one relais is set at one time.
+*/
 void RELAIS_ELEMENT::initiate(const String &VarNameInDomiq, Uint8 StartPin, Uint8 PinCount, bool8 Reversed, bool8 OnlyOneRelaisAtTime)
 {
   Uint8 i;
@@ -46,13 +55,18 @@ void RELAIS_ELEMENT::initiate(const String &VarNameInDomiq, Uint8 StartPin, Uint
   CONNECTED_ELEMENT_BASE::initiate(StartPin, VarNameInDomiq);
 }
 
-//Set the data
+//Set the data that was received from domiq base.
 void RELAIS_ELEMENT::set_data_from_domiq(String &Data)
 {
   Uint8 dataAsByte = (Uint8)Data.toInt();
 
+  this->set_data_from_domiq(dataAsByte);
+}
+
+void RELAIS_ELEMENT::set_data_from_domiq(Uint8 Value)
+{
   //Check if the data is 0.
-  if(dataAsByte == 0u){
+  if(Value == 0u){
       for (Uint8 i = 0u; i < SizeInBits; i++){
         //Set the new value.
         digitalWrite((uint8_t)Pin + i, (uint8_t)(0x0) ^ Reversed);
@@ -73,7 +87,7 @@ void RELAIS_ELEMENT::set_data_from_domiq(String &Data)
   {
     Uint8 mask = 0x1 << i;
 
-    if ((dataAsByte & mask) == mask)
+    if ((Value & mask) == mask)
     {
       //Set the new value.
       digitalWrite((uint8_t)Pin + i, (uint8_t)(0x1) ^ Reversed);
@@ -81,10 +95,11 @@ void RELAIS_ELEMENT::set_data_from_domiq(String &Data)
     }
   }
 
-  DEBUG_DATA::relais_element_set_data_called(String(dataAsByte));
+  DEBUG_DATA::relais_element_set_data_called(String(Value));
 }
 
 
+//Get the data from the relais element.
 String RELAIS_ELEMENT::get_data()
 {
   Uint8 result = 0u;

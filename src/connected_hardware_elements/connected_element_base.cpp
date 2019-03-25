@@ -28,6 +28,15 @@ void CONNECTED_ELEMENT_BASE::initiate(Uint8 Pin, const String &VarElementNameInD
   CONNECTED_ELEMENT_ARRAY::add_element(this);
 }
 
+/*  Initiate the element with a priority
+*   VarElementNameInDomiq The element name in domiq base
+*   PriorityLevel The priority level. A higher value means higher priority.
+*/
+void CONNECTED_ELEMENT_BASE::initiate(const String &VarElementNameInDomiq, Uint8 PriorityLevel)
+{
+  VarNameInDomiq = VarElementNameInDomiq;
+}
+
 
 String CONNECTED_ELEMENT_BASE::get_sampled_data(void)
 {
