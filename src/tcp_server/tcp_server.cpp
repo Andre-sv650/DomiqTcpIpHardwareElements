@@ -3,7 +3,6 @@
 #include "datatypes/cpu_datatypes.h"
 #include "tcp_server.h"
 #include <SPI.h>
-#include <Ethernet2.h>
 #include "debug/debug_data.h"
 
 bool8 TCP_SERVER::initiate(void)
@@ -29,7 +28,7 @@ bool8 TCP_SERVER::initiate(void)
     DEBUG_DATA::tcp_server_connected_to_network(String(localIp));
   }
   // Give the Ethernet shield some time to initialize:
-  delay(1000);
+  delay(500);
   Serial.println("Connecting to Domiq base with IP: " + String(domiqBaseIp));
 
   // Are we connected?
@@ -43,6 +42,9 @@ bool8 TCP_SERVER::initiate(void)
     // Warn if the connection wasn't made
     Serial.println("Connection failed, trying again.");
   }
+
+  //Save the time.
+  LastReceivedDataAtTime = millis();
 
   return connectionEstablished;
 }
@@ -62,8 +64,8 @@ void TCP_SERVER::send_data(String &Data)
 String* TCP_SERVER::loop()
 {
   Uint16 i = 0;
+  bool8 dataReceived = FALSE;
   ReceivedData = "";
-
   while (client.available())
   {
     //Read each byte on its own. Dont use the funtion read with a pointer to an array. This method will reset the device.
@@ -73,8 +75,24 @@ String* TCP_SERVER::loop()
       ReceivedData += (char)data;
       i++;
     }
+
+    dataReceived = TRUE;
   }
 
+  if(dataReceived == TRUE){
+    //Save the time.
+    LastReceivedDataAtTime = millis();
+  }
+  else{
+    //No data received. Something is wrong.
+    Uint32 currentTime = millis();
+    if((currentTime - LastReceivedDataAtTime) > TCP_IP_SETTINGS_TIMEOUT_IN_MS){
+      Serial.println("Reastablishing connection");
+
+      initiate();
+    }
+
+  }
   // Check for incoming bytes
   if (i > 0)
   {

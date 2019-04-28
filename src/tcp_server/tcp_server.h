@@ -2,7 +2,7 @@
 
 #include "../AllYouNeedIsStartHere/tcp_ip_settings.h"
 #include <WString.h>
-#include <Ethernet2.h>
+#include <Ethernet.h>
 
 class TCP_SERVER
 {
@@ -20,5 +20,7 @@ class TCP_SERVER
 
     // Initialize the Ethernet client library
     EthernetClient client;
+
+    Uint32 LastReceivedDataAtTime;
 
 };
