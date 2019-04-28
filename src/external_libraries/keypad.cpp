@@ -30,7 +30,7 @@
 ||
 */
 
-#include "Keypad.h"
+#include "keypad.h"
 #include "Arduino.h"
 
 // <<constructor>> Allows custom keymap, pin configuration, and keypad sizes.
