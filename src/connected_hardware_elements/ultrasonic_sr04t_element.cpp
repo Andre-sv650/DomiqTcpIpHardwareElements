@@ -17,15 +17,14 @@ ULTRASONIC_SR04T_ELEMENT::ULTRASONIC_SR04T_ELEMENT()
  */
 void ULTRASONIC_SR04T_ELEMENT::initiate(const String &VarNameInDomiq, Uint8 TriggerPin, Uint8 EchoPin)
 {
-  this->Pin = TriggerPin;
+  
+  this->EchoPin = EchoPin;
 
   //Define inputs and outputs
   pinMode(TriggerPin, OUTPUT);
   pinMode(EchoPin, INPUT);
 
-  this->EchoPin = EchoPin;
-
-  CONNECTED_ELEMENT_BASE::initiate(VarNameInDomiq);
+  CONNECTED_ELEMENT_BASE::initiate(TriggerPin, VarNameInDomiq);
 }
 
 //Background routine for the light intensity.
@@ -43,11 +42,12 @@ void ULTRASONIC_SR04T_ELEMENT::background_routine()
   digitalWrite(this->Pin, LOW);
   //Read the echoPin. pulseIn() returns the duration (length of the pulse) in microseconds.
   duration = pulseIn(this->EchoPin, HIGH);
-  // Calculate the distance
-  distanceInCm= duration*0.034/2;
+
+  // Calculate the distance. Duration * 0.034 / 2 is the normal calculation. Set it up to non floating point, this is faster.
+  distanceInCm = (Uint16)(duration / 59);
 
   //Filter the value.
-  Uint16 newDistanceInCm = Filter.filter_value(distanceInCm, 1, 1);
+  Uint16 newDistanceInCm = Filter.filter_value(distanceInCm, 1, ULTRASONIC_SR04T_ELEMENT_FILTER_VALUE);
   String newDistance = String(newDistanceInCm);
 
   //Set the sampled data.

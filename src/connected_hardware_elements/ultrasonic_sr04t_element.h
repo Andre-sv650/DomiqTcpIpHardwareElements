@@ -10,6 +10,9 @@
 #include "../external_libraries/ErriezBH1750.h"
 #include "../HelperFunctions/data_filter_helper.h"
 
+//If the value is 10 times the same, the value can be used. This avoids wrong measurements.
+#define ULTRASONIC_SR04T_ELEMENT_FILTER_VALUE 10u
+
 /*
  * Ultra sonic SR04T element. Connect VCC with 5V, GND with GND.
  */
