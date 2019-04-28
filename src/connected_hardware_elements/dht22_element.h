@@ -8,6 +8,10 @@
 
 #include "connected_element_base.h"
 #include "../external_libraries/DHT.h"
+
+//Read the data every 5s.
+#define DHT22_ELEMENT_READ_DATA_CYCLE 5000u
+
 /*
  * One dht element
  */
@@ -20,9 +24,11 @@ private:
 
   float32 Humidity;
 
-  Uint8 Dht22NotAvailableDebugMessageSet;
+  Uint16 Dht22NotAvailableDebugMessageSet;
 
   String HumidityVarName;
+
+  Uint32 LastReadTime;
 
 public:
 
@@ -37,8 +43,6 @@ public:
   void set_data(String* pValue);
 
   private:
-
-  void initiate(void);
 };
 
 #endif //DHT22_ELEMENT_H
