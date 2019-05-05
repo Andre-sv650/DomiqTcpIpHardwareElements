@@ -1,8 +1,12 @@
-This is an arduino library for TCP connections to Port 2424. Currently running with Relais and DHT22 elements. Next updates:
-
-    Temperature sensor One wire elements.
-    Light intensity sensor.
-    Modbus TCP weather station with wind and rain detection.
+This is an arduino library for TCP connections to Port 2424.
+Sensors:
+1. Relais module
+2. DHT22 Temperature Sensor.
+3. BHI1750 light intensity sensor.
+4. SR04T ultrasonic distance sensor.
+5. STMVL53L0X laser distance sensor.
+6. Interrupt counting with saving the interrupt counter value to EEPROM.
+7. One wire temperature sensor (for example DS1820).
 
 Prepare the sofware:
 
@@ -27,9 +31,8 @@ Instructions for first setup:
 Choose connected hardware:
 
     Open the src folder and than the folder AllYouNeedIsStartHere
-    Open the file sensor_elements_initiate.cpp
-    Setup the harware that is connected. There are 2 examples given.
-
+    Open the file sensor_elements_initiate.cpp or sensor_elements_keller_initiate.cpp, check which one is used in the main.cpp
+    Setup the harware that is connected. There are examples given.
  
     Setup the IP address. Open the file tcp_ip_settings.h and set the mac address and the IP Address of the device.
 
