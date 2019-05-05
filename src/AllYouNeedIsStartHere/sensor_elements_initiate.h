@@ -1,16 +1,22 @@
 
 
 #include "datatypes/cpu_datatypes.h"
-#include "connected_hardware_elements/dht22_element.h"
-#include "connected_hardware_elements/relais_element.h"
-#include "connected_hardware_elements/temp_sensor_one_wire_element.h"
-#include "connected_hardware_elements/bhi1750fvi_light_intensity.h"
-#include "connected_hardware_elements/relais_element_self_locked.h"
+#include "connected_hardware_elements/DHT22/dht22_element.h"
+#include "connected_hardware_elements/Relais/relais_element.h"
+#include "connected_hardware_elements/temp_sensor/temp_sensor_one_wire_element.h"
+#include "connected_hardware_elements/light_intensity/bhi1750fvi_light_intensity.h"
+#include "connected_hardware_elements/Relais/relais_element_self_locked.h"
 #include "connected_hardware_elements/stm_vl53l0x_element.h"
 #include "connected_hardware_elements/keypad/keypad_4_4.h"
+#include "connected_hardware_elements/ultrasonic/ultrasonic_sr04t_element.h"
+#include "connected_hardware_elements/interrupt/interrupt_element.h"
 
 #ifndef SENSOR_ELEMENTS_INITIATE_H
 #define SENSOR_ELEMENTS_INITIATE_H
+
+//The maximum on time for the relais is set to 10 minutes = 60000ms.
+//This is needed in case that the connection to domiq is broken and you are on holidays.
+#define MAXIMUM_TIME_FOR_RELAIS 600000
 
 class SENSOR_ELEMENTS_INITIATE
 {
@@ -23,17 +29,25 @@ public:
   void initiate();  
 
   //Relais outputs.
-  //RELAIS_ELEMENT Relais1FromPin8;
+  RELAIS_ELEMENT RelaisForGartenpumpe;
 
-  //RELAIS_ELEMENT_SELF_LOCKED SelfLockedRelais;
+  RELAIS_ELEMENT RelaisForGartenSprenger;
 
-  //DHT22_ELEMENT Dth22Sensor;
+  RELAIS_ELEMENT_SELF_LOCKED SelfLockedRelais;
 
-  //TEMP_SENSOR_ONE_WIRE_ELEMENT TempOneWireSensor;
+  DHT22_ELEMENT Dth22Sensor;
 
-  //BHI_1750FVI_LIGHT_INTENSITY LightIntensitySensor;
+  TEMP_SENSOR_ONE_WIRE_ELEMENT TempOneWireSensor;
 
-  STM_VL53L0X_ELEMENT StmVl53Element;
+  BHI_1750FVI_LIGHT_INTENSITY LightIntensitySensor;
+
+  //STM_VL53L0X_ELEMENT StmVl53Element;
+
+  ULTRASONIC_SR04T_ELEMENT TankFuellStandLinks;
+
+  ULTRASONIC_SR04T_ELEMENT TankFuellStandRechts;
+
+  INTERRUPT_ELEMENT S0CounterForDrainage1;
 
   //KEYPAD_4_4_ELEMENT KeyPad;
   
