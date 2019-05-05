@@ -1,5 +1,3 @@
-
-
 #include "../../AllYouNeedIsStartHere/project_defines.h"
 #ifdef INTERRUPT_ELEMENT_ENABLED
 
@@ -8,9 +6,6 @@
 
 #include "../Base/connected_element_base.h"
 #include "../../external_libraries/eeprom/EEPROMex.h"
-
-//Save the data to the EEPROM every minute. Else the eeprom is destroyed after small time by too many write attmepts.
-#define INTERRUPT_ELEMENT_SAVE_DATA_TO_EEPROM_TIME 6000
 
 /*
  * Interrupt element
