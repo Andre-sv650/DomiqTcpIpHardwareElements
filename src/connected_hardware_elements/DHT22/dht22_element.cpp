@@ -75,21 +75,18 @@ void DHT22_ELEMENT::background_routine(void)
     //Check if data was changed.
     if (Temperature != temperature)
     {
+      Temperature = temperature;
       String temperatur = String(Temperature);
 
       //Set the new temperature to the base element.
       set_new_data_sampled(temperatur);
-
-      this->NewDataSampled = TRUE;
     }
 
     if ((Humidity != humidity))
     {
+      Humidity = humidity;
       this->NewDataSampled = TRUE;
     }
-
-    Humidity = humidity;
-    Temperature = temperature;
 
     //Save the time.
     LastReadTime = currentTime;
@@ -98,18 +95,11 @@ void DHT22_ELEMENT::background_routine(void)
 
 String DHT22_ELEMENT::get_sampled_data(void)
 {
-  String newSampledData;
+  String temperatur = CONNECTED_ELEMENT_BASE::get_sampled_data();
+  temperatur += CONNECTED_ELEMENT_BASE::generate_domiq_string(HumidityVarName, Humidity);
+  DEBUG_DATA::generic_send_debug_message(temperatur);
 
-  if (this->NewDataSampled == TRUE)
-  {
-    String temperatur = CONNECTED_ELEMENT_BASE::get_sampled_data();
-    String humidity = CONNECTED_ELEMENT_BASE::generate_domiq_string(HumidityVarName, Humidity);
-
-    CONNECTED_ELEMENT_BASE::debug_message_new_sampled_data(HumidityVarName, String(Humidity));
-    newSampledData = temperatur + humidity;
-  }
-
-  return newSampledData;
+  return temperatur;
 }
 
 #endif //DHT22_ELEMENT_ENABLED
