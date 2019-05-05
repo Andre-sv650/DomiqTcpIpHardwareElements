@@ -1,14 +1,14 @@
-
-
+#include <Ethernet.h>
 #include "../AllYouNeedIsStartHere/tcp_ip_settings.h"
 #include <WString.h>
-#include <Ethernet.h>
 
 class TCP_SERVER
 {
     public:
 
     bool8 initiate(void);
+
+    bool8 connect_to_domiq(void);
 
     String* loop(void);
 

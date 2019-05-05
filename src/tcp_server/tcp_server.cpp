@@ -1,5 +1,3 @@
-
-
 #include "datatypes/cpu_datatypes.h"
 #include "tcp_server.h"
 #include <SPI.h>
@@ -7,11 +5,9 @@
 
 bool8 TCP_SERVER::initiate(void)
 {
-  bool8 connectionEstablished = FALSE;
   // Set a static IP address to use if the DHCP fails to assign
   IPAddress ip(OWN_IP);
   byte mac[] = OWN_MAC_SETTING;
-  char domiqBaseIp[] = DOMIQ_BASE_IP;
 
   // Start the Ethernet connection:
   if (Ethernet.begin(mac) == 0)
@@ -29,6 +25,17 @@ bool8 TCP_SERVER::initiate(void)
   }
   // Give the Ethernet shield some time to initialize:
   delay(500);
+
+  //Connect to domiq base.
+  return connect_to_domiq();
+}
+
+
+bool8 TCP_SERVER::connect_to_domiq(void)
+{
+  const char domiqBaseIp[] = DOMIQ_BASE_IP;
+  bool8 connectionEstablished = FALSE;
+
   Serial.println("Connecting to Domiq base with IP: " + String(domiqBaseIp));
 
   // Are we connected?
@@ -48,6 +55,7 @@ bool8 TCP_SERVER::initiate(void)
 
   return connectionEstablished;
 }
+
 
 void TCP_SERVER::send_data(String &Data)
 {
@@ -89,7 +97,8 @@ String* TCP_SERVER::loop()
     if((currentTime - LastReceivedDataAtTime) > TCP_IP_SETTINGS_TIMEOUT_IN_MS){
       Serial.println("Reastablishing connection");
 
-      initiate();
+      client.stop();
+      connect_to_domiq();
     }
 
   }
@@ -105,9 +114,7 @@ String* TCP_SERVER::loop()
     Serial.println("Disconnecting.");
     client.stop();
 
-    // Now sleep until a reset
-    while (true)
-      ;
+    connect_to_domiq();
   }
 
   return &ReceivedData;
