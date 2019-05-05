@@ -4,6 +4,9 @@
 #define EEPROM_KEY1 1
 #define EEPROM_KEY2 2
 
+//Save the data to the EEPROM every minute. Else the eeprom is destroyed after small time by too many write attmepts.
+#define INTERRUPT_ELEMENT_SAVE_DATA_TO_EEPROM_TIME 60000
+
 
 //---------------The maximum number of connected elements like DHT22, temp seonsor elements one wire etc. -------------
 #define CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH 6
