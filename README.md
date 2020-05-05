@@ -7,6 +7,7 @@ Sensors:
 5. STMVL53L0X laser distance sensor.
 6. Interrupt counting with saving the interrupt counter value to EEPROM.
 7. One wire temperature sensor (for example DS1820).
+8. RC switch 433Mhz. The baumarkt switches can be set directly from domiq base.
 
 Prepare the sofware:
 
