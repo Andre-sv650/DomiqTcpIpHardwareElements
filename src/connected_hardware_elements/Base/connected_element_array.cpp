@@ -22,30 +22,30 @@ CONNECTED_ELEMENT_BASE *pRegisteredElementsWithPriority[CONNECTED_ELEMENT_ARRAY_
 Uint8 RegisteredElementsCount;
 
 //The priority elements.
-Uint8 RegisteredElementsWithPriority;
+Uint8 RegisteredElementsWithPriorityCount;
 
 void initiate(void)
 {
   Uint8 i;
   RegisteredElementsCount = 0u;
-  RegisteredElementsWithPriority = 0u;
+  RegisteredElementsWithPriorityCount = 0u;
   BackgroundRoutineCounter = 0u;
 
-  for (i = 0u; i < CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH; i++)
-  {
-    pRegisteredElements[i] = NULL_PTR;
-    pRegisteredElementsWithPriority[i] = NULL_PTR;
+  for (i = 0u; i < CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH; i++){
+    pRegisteredElements[i] = (CONNECTED_ELEMENT_BASE*)NULL_PTR;
+    pRegisteredElementsWithPriority[i] = (CONNECTED_ELEMENT_BASE*)NULL_PTR;
   }
 
-  Serial.println("Array elements initiated");
+  #ifdef DEBUG_CONNECTED_ELEMENT_ARRAY
+  Serial.println(F("Array elements initiated"));
+  #endif
 }
 
 //Add one element to the array.
 void add_element(CONNECTED_ELEMENT_BASE *pNewElement)
 {
   //Set the element.
-  if (RegisteredElementsCount < CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH)
-  {
+  if (RegisteredElementsCount < CONNECTED_ELEMENT_ARRAY_ELEMENTS_LENGTH){
     pRegisteredElements[RegisteredElementsCount] = pNewElement;
 
     RegisteredElementsCount++;
@@ -57,7 +57,11 @@ void add_element(CONNECTED_ELEMENT_BASE *pNewElement)
 //Add one element with priority.
 void add_element(CONNECTED_ELEMENT_BASE *pNewElement, Uint8 PriorityLevel)
 {
+  pRegisteredElementsWithPriority[RegisteredElementsWithPriorityCount] = pNewElement;
 
+  RegisteredElementsWithPriorityCount++;
+
+  DEBUG_DATA::connected_element_array_item_added(pNewElement->VarNameInDomiq);
 }
 
 /*
@@ -67,18 +71,16 @@ void set_new_data_from_domiq(String &DataWithVarNameAndValue)
 {
   Uint8 dataLength = DataWithVarNameAndValue.length();
 
-  if (dataLength > 0)
-  {
-    String line;
+  if (dataLength > 0){
+    //Delete the old string.
     int lineLength = 0;
+    String line;
 
-    do
-    {
-      line = STRING_HELPER_FUNCTIONS::get_line(DataWithVarNameAndValue);
+    do{
+      STRING_HELPER_FUNCTIONS::get_line(DataWithVarNameAndValue, line);
       lineLength = line.length();
 
-      if (lineLength > 0)
-      {
+      if (lineLength > 0){
         set_new_data_from_domiq_internal(line);
       }
     } while (lineLength > 0);
@@ -96,18 +98,17 @@ void set_new_data_from_domiq_internal(String &Line)
   Serial.println("Line found: " + Line);
   #endif
 
-  if (indexOfGleich > 0)
-  {
+  if ((indexOfGleich > 0) && ((indexOfGleich + 1) < dataLength)){
     Uint8 i;
-    String VariableName = Line.substring(0, indexOfGleich);
-    String Value = Line.substring(indexOfGleich + 1, dataLength - 1);
+    String VariableName = Line.substring(0u, (unsigned int)indexOfGleich);
+    String Value = Line.substring((unsigned int)indexOfGleich + 1u, (unsigned int)dataLength - 1u);
 
-    for (i = 0u; i < RegisteredElementsCount; i++)
-    {
+    for(i = 0u; i < RegisteredElementsCount; i++){
       //Check if this is the element.
-      if (VariableName.compareTo(pRegisteredElements[i]->VarNameInDomiq) == 0)
-      {
+      if (VariableName.compareTo(pRegisteredElements[i]->VarNameInDomiq) == 0){
         DEBUG_DATA::connected_element_array_item_found_setting_data(VariableName, Value);
+        
+        //Set the data.
         pRegisteredElements[i]->set_data_from_domiq(Value);
 
         //Data was set. Return from the function.
@@ -117,48 +118,47 @@ void set_new_data_from_domiq_internal(String &Line)
   }
 }
 
-String get_new_data()
+void get_new_data(String &Result)
 {
-  String newData;
+  //Delte result
+  Result = "";
 
   //Call all elements in this.
-  for (Uint8 i = 0u; i < RegisteredElementsCount; i++)
-  {
+  for (Uint8 i = 0u; i < RegisteredElementsCount; i++){
     //Check if the data changed.
-    if (pRegisteredElements[i]->NewDataSampled == TRUE)
-    {
+    if (pRegisteredElements[i]->NewDataSampled == TRUE){
       //Call the routine to get the new data.
-      String dataFromElement = pRegisteredElements[i]->get_sampled_data();
-      newData += dataFromElement;
+      pRegisteredElements[i]->get_sampled_data(Result);
 
-      DEBUG_DATA::connected_element_array_found_new_data(pRegisteredElements[i]->VarNameInDomiq, dataFromElement);
-
+      //Delete the flag.
       pRegisteredElements[i]->NewDataSampled = FALSE;
+
+      //send one data at one time to avoid messages which are too long.
+      return;
     }
   }
 
-  return newData;
+  DEBUG_DATA::connected_element_array_found_new_data(Result);
 }
 
 //The background routine.
 void background_routine(void)
 {
+  Uint8 i;
   BackgroundRoutineCounter++;
 
-  if (BackgroundRoutineCounter >= RegisteredElementsCount)
-  {
+  if (BackgroundRoutineCounter >= RegisteredElementsCount){
     BackgroundRoutineCounter = 0;
   }
 
   //Check if element is not NULL_PTR to avoid calling a not available function and resetting the arduino.
-  if (pRegisteredElements[BackgroundRoutineCounter] != NULL_PTR)
-  {
+  if (pRegisteredElements[BackgroundRoutineCounter] != NULL_PTR){
     //Call the routine.
     pRegisteredElements[BackgroundRoutineCounter]->background_routine();
   }
 
   //Do all registered elements with priority.
-  for(Uint8 i = 0u; i < RegisteredElementsWithPriority; i++){
+  for(i = 0u; i < RegisteredElementsWithPriorityCount; i++){
     //Call each background routine.
     pRegisteredElementsWithPriority[i]->background_routine();
   }

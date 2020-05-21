@@ -24,7 +24,7 @@ namespace CONNECTED_ELEMENT_ARRAY
 
    void set_new_data_from_domiq_internal(String &Line);
 
-   String get_new_data(void);
+   void get_new_data(String &Result);
 };
 
 
