@@ -3,51 +3,35 @@
 #include <SPI.h>
 #include "debug/debug_data.h"
 
+
 bool8 TCP_SERVER::initiate(void)
 {
-  // Set a static IP address to use if the DHCP fails to assign
-  IPAddress ip(OWN_IP);
-  byte mac[] = OWN_MAC_SETTING;
+  //Reset the counter.
+  ReconnectCounter = 0u;
 
-  // Start the Ethernet connection:
-  if (Ethernet.begin(mac) == 0)
-  {
-    DEBUG_DATA::tcp_server_failed_to_connect();
+  LastReceivedDataAtTime = millis();
 
-    // Can't get an IP, so use another one
-    Ethernet.begin(mac, ip);
-  }
-  else
-  {
-    IPAddress localIp = Ethernet.localIP();
+  ReceivedData = "";
 
-    DEBUG_DATA::tcp_server_connected_to_network(String(localIp));
-  }
-  // Give the Ethernet shield some time to initialize:
-  delay(500);
-
-  //Connect to domiq base.
-  return connect_to_domiq();
+  TempReceiveBuffer = "";
 }
-
 
 bool8 TCP_SERVER::connect_to_domiq(void)
 {
   const char domiqBaseIp[] = DOMIQ_BASE_IP;
   bool8 connectionEstablished = FALSE;
 
-  Serial.println("Connecting to Domiq base with IP: " + String(domiqBaseIp));
+  Serial.print(F("Connecting to Domiq base with IP: "));
+  Serial.println(String(domiqBaseIp));
 
   // Are we connected?
-  if (client.connect(domiqBaseIp, 4224))
-  {
-    Serial.println("Domiq connection established.");
+  if (client_connect(domiqBaseIp, 4224)){
+    Serial.println(F("Domiq connection established."));
     connectionEstablished = TRUE;
   }
-  else
-  {
+  else{
     // Warn if the connection wasn't made
-    Serial.println("Connection failed, trying again.");
+    Serial.println(F("Connection failed, trying again."));
   }
 
   //Save the time.
@@ -59,63 +43,114 @@ bool8 TCP_SERVER::connect_to_domiq(void)
 
 void TCP_SERVER::send_data(String &Data)
 {
-  if (Data.length() > 0)
-  {
+  if(Data.length() > 0){
     // Make a HTTP request:
-    client.println(Data);
+    client_println(Data);
 
     DEBUG_DATA::tcp_server_print_send_new_data(Data);
   }
 }
 
 
-String* TCP_SERVER::loop()
+void TCP_SERVER::loop()
 {
-  Uint16 i = 0;
-  bool8 dataReceived = FALSE;
-  ReceivedData = "";
-  while (client.available())
-  {
-    //Read each byte on its own. Dont use the funtion read with a pointer to an array. This method will reset the device.
-    //Dont know where the problem is.
-    int data = client.read();
-    if(data > -1){
-      ReceivedData += (char)data;
-      i++;
-    }
-
-    dataReceived = TRUE;
-  }
+  bool8 dataReceived = client_read_multibyte_data();
 
   if(dataReceived == TRUE){
     //Save the time.
     LastReceivedDataAtTime = millis();
+
+    DEBUG_DATA::tcp_server_print_command_received(ReceivedData);
   }
   else{
-    //No data received. Something is wrong.
-    Uint32 currentTime = millis();
-    if((currentTime - LastReceivedDataAtTime) > TCP_IP_SETTINGS_TIMEOUT_IN_MS){
-      Serial.println("Reastablishing connection");
+    //No data received. Something is wrong. Check the time.
+    if((millis() - LastReceivedDataAtTime) > TCP_IP_SETTINGS_TIMEOUT_IN_MS){
+      ReconnectCounter++;
+      
+      Serial.print(F("Timeout, reastablishing connection: "));
+      Serial.println(ReconnectCounter);
 
-      client.stop();
+      //Stop this client.
+      client_stop();
+
+      //Reconnect to domiq base.
       connect_to_domiq();
     }
-
-  }
-  // Check for incoming bytes
-  if (i > 0)
-  {
-    DEBUG_DATA::tcp_server_print_command_received(i, ReceivedData);
   }
 
   // If the server disconnected, then stop the client:
-  if (!client.connected())
-  {
-    Serial.println("Disconnecting.");
-    client.stop();
+  if (!client_connected()){
+    ReconnectCounter++;
+    Serial.print(F("Server disconnected. Trying to restart: "));
+    Serial.println(ReconnectCounter);
 
+    //Stop this client.
+    client_stop();
+
+    //Reconnect to domiq base.
     connect_to_domiq();
   }
+}
 
-  return &ReceivedData;
+bool8 TCP_SERVER::client_read_multibyte_data(void)
+{
+  int dataLength;
+  bool8 dataReceived = FALSE;
+  bool8 lineCarriageFound = FALSE;
+
+  //Copy the last received values to the received data.
+  ReceivedData = TempReceiveBuffer;
+  
+  #ifdef DEBUG_DATA_TCP_SERVER
+  if(TempReceiveBuffer.length() > 0u){
+    Serial.print(F("TCP server Temp buffer is filled with: "));
+    Serial.println(TempReceiveBuffer);
+  }
+  #endif
+
+  //Empty the temp receive buffer.
+  TempReceiveBuffer = "";
+
+  do{
+    //Call the client read function.
+    dataLength = client_read(buffer, TCP_SERVER_CLIENT_READ_MULTIBYTE_BUFFER_SIZE);
+
+    if(dataLength > 0){
+      //Convert the data to a string. Avoid that the string overflows.
+      //Do one message after another.
+      lineCarriageFound = copy_received_char_array_to_string((Uint8)dataLength);
+
+      dataReceived = TRUE;
+    }
+    else{
+      //Break the while loop.
+      lineCarriageFound = TRUE;
+    }
+  }while((dataLength > 0) && (lineCarriageFound == FALSE));
+
+  return dataReceived;
+}
+
+
+bool8 TCP_SERVER::copy_received_char_array_to_string(Uint8 Size)
+{
+  Uint8 i;
+  bool8 lineCarriageFound = FALSE;
+
+  for(i = 0u; i < Size; i++){
+    if(lineCarriageFound == FALSE){
+      //Add the data to the received data. Check if carriage return was found.
+      ReceivedData += (char)buffer[i];
+    }
+    else{
+      TempReceiveBuffer += (char)buffer[i];
+    }
+
+    if(buffer[i] == '\n'){
+      //Line carriage found.
+      lineCarriageFound = TRUE;
+    }
+  }
+
+  return lineCarriageFound;
 }
