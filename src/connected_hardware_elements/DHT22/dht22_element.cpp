@@ -30,17 +30,22 @@ void DHT22_ELEMENT::initiate(const String &TemperatureVarNameInDomiq, Uint8 Pin)
 
 void DHT22_ELEMENT::initiate(const String &TemperatureVarNameInDomiq, Uint8 Pin, const String &HumidityVarNameInDomiq)
 {
-  this->initiate(TemperatureVarNameInDomiq, Pin);
-
   this->HumidityVarName = HumidityVarNameInDomiq;
+  this->initiate(TemperatureVarNameInDomiq, Pin);
 }
 
+
+//The background routine for the DHT22 element. Checks if new data from the sensor can be sampled.
 void DHT22_ELEMENT::background_routine(void)
 {
   Uint32 currentTime = millis();
 
-  if ((currentTime - LastReadTime) > DHT22_ELEMENT_READ_DATA_CYCLE)
-  {
+  if ((currentTime - LastReadTime) > DHT22_ELEMENT_SAMPLE_TIME){
+    #ifdef DEBUG_DHT22
+    Serial.print(F("Starting new DHT22 conversion for "));
+    Serial.println(VarNameInDomiq);
+    #endif
+
     // Reading temperature or humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
     float humidity = MyDht22.readHumidity();
@@ -50,18 +55,15 @@ void DHT22_ELEMENT::background_routine(void)
     float f = 0.0f; // MyDht22.readTemperature(true);
 
     // Check if any reads failed and exit early (to try again).
-    if (isnan(humidity) || isnan(temperature) || isnan(f))
-    {
-      if (Dht22NotAvailableDebugMessageSet < 200)
-      {
+    if (isnan(humidity) || isnan(temperature) || isnan(f)){
+      if (Dht22NotAvailableDebugMessageSet < 200) {
         //Do not set the new data.
         humidity = Humidity;
         temperature = Temperature;
 
         Dht22NotAvailableDebugMessageSet++;
       }
-      else if (Dht22NotAvailableDebugMessageSet >= 200)
-      {
+      else if (Dht22NotAvailableDebugMessageSet >= 200){
         temperature = -Dht22NotAvailableDebugMessageSet;
         humidity = -Dht22NotAvailableDebugMessageSet;
 
@@ -90,16 +92,20 @@ void DHT22_ELEMENT::background_routine(void)
 
     //Save the time.
     LastReadTime = currentTime;
+
+    #ifdef DEBUG_DHT22
+    Serial.print(F("New DHT22 value sampled. Temperature: "));
+    Serial.print(Temperature);
+    Serial.print(F(". Humidity: "));
+    Serial.println(Humidity);
+    #endif
   }
 }
 
-String DHT22_ELEMENT::get_sampled_data(void)
+void DHT22_ELEMENT::get_sampled_data(String &Result)
 {
-  String temperatur = CONNECTED_ELEMENT_BASE::get_sampled_data();
-  temperatur += CONNECTED_ELEMENT_BASE::generate_domiq_string(HumidityVarName, Humidity);
-  DEBUG_DATA::generic_send_debug_message(temperatur);
-
-  return temperatur;
+  CONNECTED_ELEMENT_BASE::get_sampled_data(Result);
+  CONNECTED_ELEMENT_BASE::generate_domiq_string(HumidityVarName, Humidity, Result);
 }
 
 #endif //DHT22_ELEMENT_ENABLED

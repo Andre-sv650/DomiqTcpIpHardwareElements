@@ -9,11 +9,12 @@
 #include "../Base/connected_element_base.h"
 #include "../../external_libraries/DHT/DHT.h"
 
-//Read the data every 5s.
-#define DHT22_ELEMENT_READ_DATA_CYCLE 5000u
-
 /*
- * One dht element
+ * One dht element. Pin selection from left to right. Left from before the sensor.
+ * Pin 1: Power 3,3 till 5,5V.
+ * Pin 2: Data
+ * Pin 3: GND
+ * Pin 4: GND
  */
 class DHT22_ELEMENT : public CONNECTED_ELEMENT_BASE
 {
@@ -38,7 +39,7 @@ public:
 
   void background_routine(void);
 
-  String get_sampled_data(void);
+  void get_sampled_data(String &Result);
 
   void set_data(String* pValue);
 
