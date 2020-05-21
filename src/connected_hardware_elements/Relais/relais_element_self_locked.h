@@ -13,9 +13,14 @@
 
     RELAIS_ELEMENT_SELF_LOCK_STATE_SWITCH_ON = 100,
 
+    RELAIS_ELEMENT_SELF_LOCK_STATE_SWITCH_ON_IN_PROGRESS = 101,
+
+
     RELAIS_ELEMENT_SELF_LOCK_STATE_ON = 1,
 
-    RELAIS_ELEMENT_SELF_LOCK_STATE_SWITCH_TO_OFF = 200
+    RELAIS_ELEMENT_SELF_LOCK_STATE_SWITCH_TO_OFF = 200, 
+
+    RELAIS_ELEMENT_SELF_LOCK_STATE_SWITCH_OFF_IN_PROGRESS = 201
   };
 
 
@@ -25,10 +30,15 @@
 class RELAIS_ELEMENT_SELF_LOCKED : public RELAIS_ELEMENT
 {
 private:
+
   RELAIS_ELEMENT_SELF_LOCK_STATE State;
+
+  RELAIS_ELEMENT_SELF_LOCK_STATE NextState;
 
   //The state was set at the millisecond
   Uint32 SetAtTime;
+
+  bool8 ThisSelfLockedRelaisInProgress;
 
 public:
      RELAIS_ELEMENT_SELF_LOCKED(void);
@@ -37,7 +47,7 @@ public:
 
      void background_routine(void);
 
-     String get_data(void);
+     void get_data(String &Result);
      
      void set_data_from_domiq(String &Data);
 };

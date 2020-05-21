@@ -26,6 +26,12 @@ private:
 
   Uint8 LastRelaisState;
 
+  Uint32 *pReceivedRcCode;
+
+  Uint32 CodesForOn[RELAIS_ELEMENT_MAX_NUMBER_OF_RELAIS];
+
+  Uint32 CodesForOff[RELAIS_ELEMENT_MAX_NUMBER_OF_RELAIS];
+
 public:
      RELAIS_ELEMENT(void);
      
@@ -33,9 +39,13 @@ public:
 
      void initiate(const String &VarNameInDomiq, Uint8 StartPin, Uint8 PinCount, bool8 Reversed, bool8 OnlyOneRelaisAtTime);
 
+     void connect_to_internal_rc_switch(Uint32 *pReceivedCode, Uint32 CodesForOn[], Uint32 CodesForOff[]);
+
      void set_maximum_on_time(Uint32 MaximumOnTimeInMs);
 
-     String get_data(void);
+     void get_data(String &Result);
+
+     Uint8 get_data_as_uint8(void);
 
      void background_routine(void);
      
