@@ -12,49 +12,47 @@ class DATA_FILTER_HELPER
   private:
     T LastValue;
 
-    Uint8 DifferenceCounter;
+    bool8 StartOfMeasurement;
+
+    T SampledValues[DATA_FILTER_HELPER_ARRAY_LENGTH];
+
+    Uint8 SampledValueIndex;
 
   public:
     
     DATA_FILTER_HELPER()
     {
+        StartOfMeasurement = TRUE;
 
+        SampledValueIndex = 0u;
     }
 
     //Filter the value with the Value difference and the number of time.
     T filter_value(T NewValue, T ValueDifference, Uint8 NumberOfTimes)
     {
-        T result;
-
-        if (NewValue > LastValue + ValueDifference)
-        {
-            DifferenceCounter++;
-        }
-        else if (NewValue < LastValue - ValueDifference)
-        {
-            DifferenceCounter++;
-        }
-        else
-        {
-            DifferenceCounter = 0u;
+        float32 result = 0.0f;
+        //Increment the index.
+        SampledValueIndex++;
+        //Check if index is valid.
+        if(SampledValueIndex >= DATA_FILTER_HELPER_ARRAY_LENGTH){
+            SampledValueIndex = 0u;
         }
 
-        if (DifferenceCounter > NumberOfTimes)
-        {
-            result = NewValue;
-            LastValue = NewValue;
+        //Save the new sampled
+        SampledValues[SampledValueIndex] = NewValue;
 
-            DifferenceCounter = 0;
-        }
-        else
-        {
-            result = LastValue;
+        for(Uint8 i = 0u; i < DATA_FILTER_HELPER_ARRAY_LENGTH; i++){
+           if(StartOfMeasurement == TRUE){
+               SampledValues[i] = NewValue;
+           }
+
+           result += (float32)SampledValues[i];
         }
 
-        return result;
+        StartOfMeasurement = FALSE;
+
+        return (T)(result / (float32)DATA_FILTER_HELPER_ARRAY_LENGTH);
     }
-
-
 };
 
 #endif

@@ -5,7 +5,7 @@
 
 namespace STRING_HELPER_FUNCTIONS
 {
-    String get_line(String& Data);
+    void get_line(String& Data, String& Result);
 };
 
 #endif //STRING_HELPER

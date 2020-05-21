@@ -38,5 +38,4 @@ void EEPROM_INITIALIZE::initialize(Uint32 Key1, Uint32 Key2)
 
         Serial.println("EEPROM formatted");
     }
-
 }

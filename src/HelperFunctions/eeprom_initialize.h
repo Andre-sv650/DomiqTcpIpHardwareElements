@@ -2,7 +2,8 @@
 
 #include "datatypes/cpu_datatypes.h"
 #include "../external_libraries/eeprom/EEPROMex.h"
-
+#ifndef EEPROM_INITIALIZE_H
+#define EEPROM_INITIALIZE_H
 
 
 class EEPROM_INITIALIZE
@@ -12,8 +13,4 @@ class EEPROM_INITIALIZE
 };
 
 
-
-
-
-
-
+#endif //EEPROM_INITIALIZE_H
