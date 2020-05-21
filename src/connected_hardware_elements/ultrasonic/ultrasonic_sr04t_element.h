@@ -33,6 +33,8 @@ public:
 private:
   DATA_FILTER_HELPER<Uint16> Filter;
 
+  Uint32 LastSampleTime;
+
   Uint8 EchoPin;
 };
 
