@@ -5,6 +5,7 @@
 #include "AllYouNeedIsStartHere/sensor_elements_uno_initiate.h"
 #include "tcp_server/tcp_server_ethernet2.h"
 #include "tcp_server/tcp_server_esp8266.h"
+#include "tcp_server/tcp_server_esp13_shield.h"
 #include "connected_hardware_elements/Base/connected_element_array.h"
 #include "connected_hardware_elements/RcSwitch433Mhz/rc_switch_433_mhz_base_instance.h"
 #include "HelperFunctions/eeprom_initialize.h"
@@ -20,13 +21,20 @@ TCP_SERVER_ESP8266 server;
 
 SENSOR_ELEMENTS_UNO_INITIATE sensorElements;
 
-TCP_SERVER_ETHERNET2 server;
-
 #else
+
 SENSOR_ELEMENTS_INITIATE sensorElements;
 
+#endif
+
+#ifdef ETHERNET_SHIELD
 // Initialize the Ethernet client library
 TCP_SERVER_ETHERNET2 server;
+
+#elif USE_TCP_SERVER_ESP13_SHIELD
+
+TCP_SERVER_ESP13_SHIELD server;
+
 #endif
 
  
@@ -54,9 +62,13 @@ void setup()
  
 void loop()
 {
-  String ReceivedData = *server.loop();
+  String sendData;
 
-  CONNECTED_ELEMENT_ARRAY::set_new_data_from_domiq(ReceivedData);
+  //Check for incoming messages from Domiq base.
+  server.loop();
+
+  //Set the new data that was received.
+  CONNECTED_ELEMENT_ARRAY::set_new_data_from_domiq(server.ReceivedData);
 
   CONNECTED_ELEMENT_ARRAY::background_routine();
 
@@ -67,7 +79,7 @@ void loop()
 
   #endif
 
-  String sendData = CONNECTED_ELEMENT_ARRAY::get_new_data();
+  CONNECTED_ELEMENT_ARRAY::get_new_data(sendData);
 
   server.send_data(sendData);
 }
