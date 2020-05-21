@@ -10,6 +10,17 @@
 #include "../../external_libraries/BH1750/ErriezBH1750.h"
 #include "../../HelperFunctions/data_filter_helper.h"
 
+
+enum BHI_1750FVI_LIGHT_INTENSITY_STATE_ENUM{
+
+  BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT = 0,
+
+  BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION = 1,
+
+  BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT_FOR_DATA = 2
+
+};
+
 /*
  * Ligth intensity element. Connect VCC with 5V, GND with GND.
  * On arduino uno connect SCL with PIN A5 and SDA with PIN A4.
@@ -34,13 +45,17 @@ public:
 private:
   DATA_FILTER_HELPER<Uint16> Filter;
   
-  //If the light value is different 100 time, set the value to domiq.
-  #define LIGHT_VALUE_DIFFERENT 10
+  //If the light value is different 5 times, set the value to domiq.
+  #define LIGHT_VALUE_DIFFERENT 5
 
   //If the light value minimum difference is greater than 2, a new value is written to domiq.
   #define LIGHT_VALUE_MIN_DIFFERENCE 2
 
   Uint16 LightIntensityValue;
+
+  Uint32 LastSampleTime;
+
+  BHI_1750FVI_LIGHT_INTENSITY_STATE_ENUM StateMachine;
 
   Uint8  LightValueDifferentCounter;
 };

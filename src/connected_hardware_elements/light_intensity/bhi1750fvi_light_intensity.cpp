@@ -26,14 +26,14 @@ BHI_1750FVI_LIGHT_INTENSITY::BHI_1750FVI_LIGHT_INTENSITY()
  */
 void BHI_1750FVI_LIGHT_INTENSITY::initiate(const String &VarNameInDomiq)
 {
-  // Initialize I2C bus
+  //Initialize I2C bus
   Wire.begin();
 
-  // Initialize sensor in continues mode, high 0.5 lx resolution
+  //Initialize sensor in continues mode, high 0.5 lx resolution. 180ms conversion time.
   Sensor.begin(ModeContinuous, ResolutionHigh);
-
-  // Start conversion
-  Sensor.startConversion();
+  
+  //Sample the first value.
+  StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION;
 
   CONNECTED_ELEMENT_BASE::initiate(VarNameInDomiq);
 }
@@ -41,17 +41,53 @@ void BHI_1750FVI_LIGHT_INTENSITY::initiate(const String &VarNameInDomiq)
 //Background routine for the light intensity.
 void BHI_1750FVI_LIGHT_INTENSITY::background_routine()
 {
-  // Read light without wait
-  Uint16 light = Sensor.read();
-  Uint16 newLight = Filter.filter_value(light, LIGHT_VALUE_MIN_DIFFERENCE, LIGHT_VALUE_DIFFERENT);
-  //Calculate the new value.
-  String newLightValue = String(newLight / 2) + "." + String(newLight % 10);
+  if(StateMachine == BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT){
+    //Check if the time expired.
+    if(millis() - LastSampleTime > BHI_1750FVI_LIGHT_INTENSITY_SAMPLE_TIME){
+      //Start the conversion.
+      StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION;
+    }
+  }
+  else if(StateMachine == BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION){
+    #ifdef DEBUG_LIGHT_INTENSITY_ELEMENT
+    Serial.print(F("Light intensity started for element: "));
+    Serial.println(VarNameInDomiq);
+    #endif
 
-  //Set the sampled data.
-  CONNECTED_ELEMENT_BASE::set_new_data_sampled(newLightValue);
+    //Start a new conversion.
+    Sensor.startConversion();
 
-  //Start a new conversion.
-  Sensor.startConversion();
+    StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT_FOR_DATA;
+  }
+  else{
+    //Check if the conversion is done.
+    if(Sensor.isConversionCompleted() == TRUE){
+      // Read light level from the sensor.
+      Uint16 light = Sensor.read();
+
+      //Filter the value. Do not use any difference.
+      Uint16 newLight = Filter.filter_value(light, LIGHT_VALUE_MIN_DIFFERENCE, LIGHT_VALUE_DIFFERENT);
+      
+      //Calculate the new lightning value. This is from the example at 
+      //https://github.com/Erriez/ErriezBH1750/blob/master/examples/OneTimeMode/BH1750OneTimeHighResolution/BH1750OneTimeHighResolution.ino
+      String newLightValue = String(newLight / 2) + "." + String(newLight % 10);
+
+      //Set the sampled data.
+      CONNECTED_ELEMENT_BASE::set_new_data_sampled(newLightValue);
+
+      //Save the current time.
+      LastSampleTime = millis();
+
+      #ifdef DEBUG_LIGHT_INTENSITY_ELEMENT
+      Serial.print(F("Light intensity end. New value: "));
+      Serial.print(newLightValue);
+      Serial.println(F(" lux"));
+      #endif
+
+      //Reset the state machine
+      StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT;
+    }
+  }
 }
 
 #endif //BHI_1750FVI_LIGHT_INTENSITY_ENABLED
