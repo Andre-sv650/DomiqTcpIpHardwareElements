@@ -1,3 +1,6 @@
+/* Interrupt element, connect the interrupt pin to ground to set one interrupt.
+   The counter is incremented, if the interrupt pin is released from ground.
+*/
 #include "../../AllYouNeedIsStartHere/project_defines.h"
 #ifdef INTERRUPT_ELEMENT_ENABLED
 
@@ -6,6 +9,11 @@
 
 #include "../Base/connected_element_base.h"
 #include "../../external_libraries/eeprom/EEPROMex.h"
+
+//The default entprell zeit for fast IRQs is 100ms.
+#define INTERRUPT_ELEMENT_DEFAULT_ENTPRELL_TIME_FOR_FAST_IRQS 100
+
+#define INTERRUPT_ELEMENT_DEFAULT_ENTPRELL_TIME_FOR_SLOW_IRQS 250
 
 /*
  * Interrupt element

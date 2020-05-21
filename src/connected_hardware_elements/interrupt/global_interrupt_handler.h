@@ -29,6 +29,10 @@ class GLOBAL_INTERRUPT_HANDLER
     static void interrupt_routine_for_element3(void);
 
     static void interrupt_routine_for_element4(void);
+
+    private:
+
+    const String DebugMessage = "IRQ called for IRQ element ";
 };
 
 
