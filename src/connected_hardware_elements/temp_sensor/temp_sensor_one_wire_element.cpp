@@ -36,20 +36,18 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine(void)
   if(InternalState == TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_WAIT){
     //Check if the next sample time is reached.
     if(millis() - LastSampleTime > TEMP_SENSOR_ONE_WIRE_ELEMENT_SAMPLE_TIME){
-      //Reset the search for a clean start.
-      TempSensor.reset_search();
-
       //Time limit reached. Sample one temp sensor value.
       InternalState = TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_START_CONVERSION;
     }
   }
-  else if(InternalState == TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_START_CONVERSION){
-    //Start the conversion of the data.
-    if(background_routine_state_start_conversion() == TRUE){
-      InternalState = TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_WAIT_FOR_DATA;
-    }
+  else if (InternalState == TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_START_CONVERSION)
+  {
+    background_routine_state_start_conversion();
+
+    InternalState = TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_WAIT_FOR_DATA;
   }
-  else if (InternalState == TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_WAIT_FOR_DATA){
+  else if (InternalState == TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_WAIT_FOR_DATA)
+  {
     // delay(1000);     // maybe 750ms is enough, maybe not. 1000ms are always enough.
     // we might do a ds.depower() here, but the reset will take care of it.
     if ((millis() - StartTime) > 1000u)
@@ -57,7 +55,8 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine(void)
       InternalState = TEMP_SENSOR_ONE_WIRE_ELEMENT_STATE_GET_SAMPLED_DATA;
     }
   }
-  else{
+  else
+  {
     background_routine_state_get_sampled_data();
 
     //Reset the internal state.
@@ -66,54 +65,53 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine(void)
 }
 
 
-bool8 TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_start_conversion()
+void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_start_conversion()
 {  
   if (!TempSensor.search(addr)){
     #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-    Serial.println(F("Temp sensor. No more addresses."));
+    Serial.println(F("No more addresses."));
     #endif
 
     TempSensor.reset_search();
-    return FALSE;
+    return;
   }
 
   #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-  Serial.print(F("Temp sensor one wire ROM ="));
-  Uint8 i;
+  //Serial.print("ROM =");
   for (i = 0; i < 8; i++){
-    Serial.print(F(":"));
+    Serial.write(' ');
     Serial.print(addr[i], HEX);
   }
   #endif
 
   if (OneWire::crc8(addr, 7) != addr[7]){
     Serial.println(F("Temp sensor one wire. CRC is invalid!"));
-    return FALSE;
+    return;
   }
 
   // the first ROM byte indicates which chip
   switch (addr[0]){
   case 0x10:
     #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-    Serial.println(F(" Chip = DS18S20"));  // or old DS1820
+    Serial.println(F("  Chip = DS18S20"));  // or old DS1820
     #endif
     type_s = 1;
     break;
   case 0x28:
     #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-    Serial.println(F(" Chip = DS18B20"));
+    Serial.println(F("  Chip = DS18B20"));
     #endif
     type_s = 0;
     break;
   case 0x22:
     #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-    Serial.println(F(" Chip = DS1822"));
+    Serial.println(F("  Chip = DS1822"));
     #endif
     type_s = 0;
     break;
   default:
-    Serial.println(F("Not a DS18x20 family device."));
-    return FALSE;
+    //Serial.println("Device is not a DS18x20 family device.");
+    return;
   }
 
   TempSensor.reset();
@@ -122,8 +120,6 @@ bool8 TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_start_conversion()
 
   //Save the start time of the conversion.
   StartTime = millis();
-
-  return TRUE;
 }
 
 
@@ -140,22 +136,13 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_get_sampled_data()
   TempSensor.select(addr);
   TempSensor.write(0xBE); // Read Scratchpad
 
-  #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-  Serial.print(F("Temp sensor one wire. New data: "));
-  #endif
-
-  for (i = 0; i < 9; i++){
-    // we need 9 bytes
+  for (i = 0; i < 9; i++)
+  { // we need 9 bytes
     data[i] = TempSensor.read();
 
     #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-    
-    Serial.print(data[i], HEX);
-    if(i == 8u){
-    }
-    else{
-      Serial.print(F(":"));
-    }
+    Serial.print(F("Temp sensor has read data. New data: "));
+    Serial.println(data[i], HEX);
     #endif
   }
 
@@ -164,15 +151,17 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_get_sampled_data()
   // be stored to an "int16_t" type, which is always 16 bits
   // even when compiled on a 32 bit processor.
   raw = (data[1] << 8) | data[0];
-
-  if(type_s) {
+  if (type_s)
+  {
     raw = raw << 3; // 9 bit resolution default
-    if (data[7] == 0x10){
+    if (data[7] == 0x10)
+    {
       // "count remain" gives full 12 bit resolution
       raw = (raw & 0xFFF0) + 12 - data[6];
     }
   }
-  else{
+  else
+  {
     byte cfg = (data[4] & 0x60);
     // at lower res, the low bits are undefined, so let's zero them
     if (cfg == 0x00)
@@ -184,15 +173,9 @@ void TEMP_SENSOR_ONE_WIRE_ELEMENT::background_routine_state_get_sampled_data()
     //// default is 12 bit resolution, 750 ms conversion time
   }
 
-  raw = Filter.filter_value(raw , 10, 5);
+  raw = Filter.filter_value(raw);
 
-  celsius = (float)raw / 16.0f;
-
-  #ifdef DEBUG_TEMP_SENSOR_ONE_WIRE
-  Serial.print(F(". This is: "));
-  Serial.print(celsius);
-  Serial.println(F("C"));
-  #endif
+  celsius = (float)raw / 16.0;
 
   newSampledData = String(celsius);
 

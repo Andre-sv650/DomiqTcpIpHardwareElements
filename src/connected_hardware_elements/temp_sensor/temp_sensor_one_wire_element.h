@@ -49,7 +49,7 @@ private:
 
   DATA_FILTER_HELPER<int16> Filter;
 
-  bool8 background_routine_state_start_conversion(void);
+  void background_routine_state_start_conversion(void);
 
   void background_routine_state_get_sampled_data(void);
 };
