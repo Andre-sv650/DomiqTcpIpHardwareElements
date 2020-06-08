@@ -6,7 +6,7 @@
 #include "../src/connected_hardware_elements/Relais/relais_element.h"
 #include "../src/connected_hardware_elements/RcSwitch433Mhz/rc_switch_433_mhz.h"
 #include "../src/connected_hardware_elements/RcSwitch433Mhz/rc_switch_433_mhz_base_instance.h"
-#include "../src/connected_hardware_elements/soil_moisture_analog/analog_sensor_element.h"
+#include "../src/connected_hardware_elements/analog_sensor/analog_sensor_element.h"
 
 #ifndef SENSOR_ELEMENTS_UNO_INITIATE_H
 #define SENSOR_ELEMENTS_UNO_INITIATE_H
