@@ -21,12 +21,12 @@ char hexaKeys[ROWS][COLS] = {
 */
 void KEYPAD_4_4_ELEMENT::initiate(Uint8 StartPinForRow, Uint8 StartPinForColumn, const String &VarElementNameInDomiq)
 {
-    Uint8 rowPins[ROWS] = {StartPinForRow + 3u, StartPinForRow + 2u, StartPinForRow + 1u, StartPinForRow}; //connect to the row pinouts of the keypad
-    Uint8 colPins[COLS] = {StartPinForColumn + 3u, StartPinForColumn + 2u, StartPinForColumn + 1u, StartPinForColumn}; //connect to the column pinouts of the keypad
+    Uint8 rowPins[ROWS] = {(Uint8)(StartPinForRow + 3u), (Uint8)(StartPinForRow + 2u), (Uint8)(StartPinForRow + 1u), StartPinForRow}; //connect to the row pinouts of the keypad
+    Uint8 colPins[COLS] = {(Uint8)(StartPinForColumn + 3u), (Uint8)(StartPinForColumn + 2u), (Uint8)(StartPinForColumn + 1u), StartPinForColumn}; //connect to the column pinouts of the keypad
     
     Pad.initialize(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-    CONNECTED_ELEMENT_BASE::initiate(VarNameInDomiq);
+    CONNECTED_ELEMENT_BASE::initiate(StartPinForRow, VarNameInDomiq);
 
 }
 

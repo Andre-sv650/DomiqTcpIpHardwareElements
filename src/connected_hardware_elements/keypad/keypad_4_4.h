@@ -6,8 +6,8 @@
 #ifndef KEYPAD_4_4_ELEMENT_H
 #define KEYPAD_4_4_ELEMENT_H
 
-#include "../connected_element_base.h"
-#include "../../external_libraries/keypad.h"
+#include "../Base/connected_element_base.h"
+#include "../../external_libraries/keypad/keypad.h"
 /*
  * One keypad 4 * 4 element
  */
