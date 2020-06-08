@@ -28,7 +28,7 @@ class DATA_FILTER_HELPER
     }
 
     //Filter the value with the Value difference and the number of time.
-    T filter_value(T NewValue, T ValueDifference, Uint8 NumberOfTimes)
+    T filter_value(T NewValue)
     {
         float32 result = 0.0f;
         //Increment the index.
