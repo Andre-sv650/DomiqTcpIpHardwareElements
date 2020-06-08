@@ -21,10 +21,10 @@ BHI_1750FVI_LIGHT_INTENSITY::BHI_1750FVI_LIGHT_INTENSITY()
 /*
  * Ligth intensity element. Connect VCC with 5V, GND with GND.
  * On arduino uno connect SCL with PIN A5 and SDA with PIN A4.
- * On arduino mega connect SCL with Pin Pin 21 and SDA with PIN 20.
+ * On arduino mega connect SCL with Pin 21 and SDA with PIN 20.
  * See https://www.arduino.cc/en/Reference/Wire for details.
  */
-void BHI_1750FVI_LIGHT_INTENSITY::initiate(const String &VarNameInDomiq)
+void BHI_1750FVI_LIGHT_INTENSITY::initiate(Uint8 SdaPin, const String &VarNameInDomiq)
 {
   //Initialize I2C bus
   Wire.begin();
@@ -35,7 +35,8 @@ void BHI_1750FVI_LIGHT_INTENSITY::initiate(const String &VarNameInDomiq)
   //Sample the first value.
   StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION;
 
-  CONNECTED_ELEMENT_BASE::initiate(VarNameInDomiq);
+  //Initiate the base element. Root pin is pin 20, this is SDA on I2C
+  CONNECTED_ELEMENT_BASE::initiate(SdaPin, VarNameInDomiq);
 }
 
 //Background routine for the light intensity.
@@ -57,7 +58,11 @@ void BHI_1750FVI_LIGHT_INTENSITY::background_routine()
     //Start a new conversion.
     Sensor.startConversion();
 
+    //Wait for the data.
     StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT_FOR_DATA;
+
+    //Get the current time for sampling the data.
+    LastSampleTime = millis();
   }
   else{
     //Check if the conversion is done.
@@ -66,7 +71,7 @@ void BHI_1750FVI_LIGHT_INTENSITY::background_routine()
       Uint16 light = Sensor.read();
 
       //Filter the value. Do not use any difference.
-      Uint16 newLight = Filter.filter_value(light, LIGHT_VALUE_MIN_DIFFERENCE, LIGHT_VALUE_DIFFERENT);
+      Uint16 newLight = Filter.filter_value(light);
       
       //Calculate the new lightning value. This is from the example at 
       //https://github.com/Erriez/ErriezBH1750/blob/master/examples/OneTimeMode/BH1750OneTimeHighResolution/BH1750OneTimeHighResolution.ino
@@ -86,6 +91,10 @@ void BHI_1750FVI_LIGHT_INTENSITY::background_routine()
 
       //Reset the state machine
       StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT;
+    }
+    else if((millis() - LastSampleTime) > BHI_1750FVI_LIGHT_INTENSITY_MAX_SAMPLE_TIME){
+      //Sample of data was not done in the desired sample time. Restart the state machine.
+      StateMachine = BHI_1750FVI_LIGHT_INTENSITY_STATE_START_CONVERSION;
     }
   }
 }

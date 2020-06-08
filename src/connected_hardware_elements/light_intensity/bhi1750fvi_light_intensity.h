@@ -10,7 +10,10 @@
 #include "../../external_libraries/BH1750/ErriezBH1750.h"
 #include "../../HelperFunctions/data_filter_helper.h"
 
+//The maximum sample time in milli seconds.
+#define BHI_1750FVI_LIGHT_INTENSITY_MAX_SAMPLE_TIME 1000
 
+//The state machine of the light intensity element.
 enum BHI_1750FVI_LIGHT_INTENSITY_STATE_ENUM{
 
   BHI_1750FVI_LIGHT_INTENSITY_STATE_WAIT = 0,
@@ -38,7 +41,7 @@ public:
  * On arduino mega connect SCL with Pin Pin 21 and SDA with PIN 20.
  * See https://www.arduino.cc/en/Reference/Wire for details.
  */
-  void initiate(const String &VarNameInDomiq);
+  void initiate(Uint8 SdaPin, const String &VarNameInDomiq);
 
   void background_routine(void);
 
