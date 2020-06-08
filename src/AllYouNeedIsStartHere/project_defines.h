@@ -37,14 +37,18 @@
 
 
 #define ULTRASONIC_SR04T_ELEMENT_ENABLED //Define it to use ultrasonic SR04T range sensor.
-#define ULTRASONIC_SR04T_ELEMENT_SAMPLE_TIME 60000 //Sample one range every  minute.
+#define ULTRASONIC_SR04T_ELEMENT_SAMPLE_TIME 60000 //Sample one range every minute.
+
+
+#define ANALOG_SENSOR_ELEMENT_ENABLED //Define it to use the analog moisture sensor.
+#define ANALOG_SENSOR_ELEMENT_SAMPLE_TIME 6000 //Sample one range every minute.
 
 
 //#define STM_VL53L0X_ELEMENT_ENABLED //Define it to use STM VL53LOX range sensor.
 #define KEYPAD_4_4_ELEMENT_ENABLED //Define it to use the 4_4 keypad element.
 
-//#define RC_SWITCH_433MHZ_ENABLED //Define it to use the RC switch (incoming data from RC control)
-//#define RC_SENDER_433MHZ_ENABLED //Define it to use the RC sender. Enable or disble external components like external power plugs.
+#define RC_SWITCH_433MHZ_ENABLED //Define it to use the RC switch (incoming data from RC control)
+#define RC_SENDER_433MHZ_ENABLED //Define it to use the RC sender. Enable or disble external components like external power plugs.
 
 
 //#define PRESENCE_DETECTOR_ELEMENT_ENABLED
