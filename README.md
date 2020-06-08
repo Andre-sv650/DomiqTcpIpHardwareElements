@@ -7,7 +7,8 @@ Sensors:
 5. STMVL53L0X laser distance sensor.
 6. Interrupt counting with saving the interrupt counter value to EEPROM.
 7. One wire temperature sensor (for example DS1820).
-8. RC switch 433Mhz. The baumarkt switches can be set directly from domiq base.
+8. Analog sensor (for example moisture sensor)
+9. RC switch 433Mhz. The baumarkt switches can be set directly from domiq base.
 
 Prepare the sofware:
 
@@ -18,7 +19,8 @@ Prepare the sofware:
 Prepare the hardware:
 
     Buy an Arduino or Arduino Mega
-    Buy an Ethernet 2 Shield
+    Or buy an node mcu.
+    Buy an Ethernet 2 or Ethernet Shield Shield
 
 Instructions for first setup:
 
